@@ -1,333 +1,455 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Simulasi Searching — AI Visualization</title>
-<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Simulasi Searching — AI Visualization</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Syne:wght@400;600;700;800&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
 
-<!-- HEADER -->
-<header>
-  <div class="header-brand">
-    <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
-      <rect x="2" y="2" width="10" height="10" rx="2" fill="currentColor" opacity="0.8"/>
-      <rect x="16" y="2" width="10" height="10" rx="2" fill="currentColor" opacity="0.5"/>
-      <rect x="2" y="16" width="10" height="10" rx="2" fill="currentColor" opacity="0.5"/>
-      <rect x="16" y="16" width="10" height="10" rx="2" fill="currentColor" opacity="0.9"/>
-      <line x1="7" y1="12" x2="7" y2="16" stroke="currentColor" stroke-width="1.5"/>
-      <line x1="21" y1="12" x2="21" y2="16" stroke="currentColor" stroke-width="1.5"/>
-      <line x1="12" y1="7" x2="16" y2="7" stroke="currentColor" stroke-width="1.5"/>
-      <line x1="12" y1="21" x2="16" y2="21" stroke="currentColor" stroke-width="1.5"/>
-    </svg>
-    <div>
-      <div class="title">Simulasi Searching</div>
-      <div class="subtitle">Visualisasi Algoritma Kecerdasan Buatan</div>
-    </div>
-  </div>
-  <div class="header-actions">
-    <button class="btn-header" onclick="openModal('bantuan')">
-      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-      Bantuan
-    </button>
-    <button class="btn-header" onclick="resetAll()">
-      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
-      Reset
-    </button>
-  </div>
-</header>
-
-<!-- MAIN -->
-<div class="app-layout">
-
-  <!-- SIDEBAR -->
-  <div class="sidebar">
-    <div class="sidebar-section">
-      <div class="sidebar-label">Uninformed Search</div>
-      <div class="algo-item active" data-algo="bfs" onclick="selectAlgo(this,'bfs')">
-        <div class="algo-icon">🔵</div>
-        <div><div class="algo-name">Breadth First Search</div><div class="algo-cat">BFS · Queue FIFO</div></div>
-      </div>
-      <div class="algo-item" data-algo="dfs" onclick="selectAlgo(this,'dfs')">
-        <div class="algo-icon">🟢</div>
-        <div><div class="algo-name">Depth First Search</div><div class="algo-cat">DFS · Stack LIFO</div></div>
-      </div>
-      <div class="algo-item" data-algo="dls" onclick="selectAlgo(this,'dls')">
-        <div class="algo-icon">📏</div>
-        <div><div class="algo-name">Depth Limited Search</div><div class="algo-cat">DLS · Depth ≤ L</div></div>
-      </div>
-      <div class="algo-item" data-algo="ids" onclick="selectAlgo(this,'ids')">
-        <div class="algo-icon">🔁</div>
-        <div><div class="algo-name">Iterative Deepening</div><div class="algo-cat">IDS · IDDFS</div></div>
-      </div>
-      <div class="algo-item" data-algo="ucs" onclick="selectAlgo(this,'ucs')">
-        <div class="algo-icon">💰</div>
-        <div><div class="algo-name">Uniform Cost Search</div><div class="algo-cat">UCS · Dijkstra</div></div>
-      </div>
-      <div class="algo-item" data-algo="bidirectional" onclick="selectAlgo(this,'bidirectional')">
-        <div class="algo-icon">↔️</div>
-        <div><div class="algo-name">Bidirectional BFS</div><div class="algo-cat">Bi-BFS · Two-ended</div></div>
-      </div>
-    </div>
-
-    <div class="sidebar-section">
-      <div class="sidebar-label">Informed / Heuristic</div>
-      <div class="algo-item custom-algo" data-algo="garislintang" onclick="selectAlgo(this,'garislintang')">
-        <div class="algo-icon">🌐</div>
-        <div><div class="algo-name">Garis Lintang</div><div class="algo-cat">GL · f=D+k*T</div></div>
-      </div>
-      <div class="algo-item" data-algo="greedy" onclick="selectAlgo(this,'greedy')">
-        <div class="algo-icon">🎯</div>
-        <div><div class="algo-name">Greedy Best First</div><div class="algo-cat">GBFS · h(n)</div></div>
-      </div>
-      <div class="algo-item" data-algo="astar" onclick="selectAlgo(this,'astar')">
-        <div class="algo-icon">⭐</div>
-        <div><div class="algo-name">A* Search</div><div class="algo-cat">f(n) = g(n)+h(n)</div></div>
-      </div>
-      <div class="algo-item" data-algo="idastar" onclick="selectAlgo(this,'idastar')">
-        <div class="algo-icon">🌟</div>
-        <div><div class="algo-name">IDA* Search</div><div class="algo-cat">Iterative A*</div></div>
-      </div>
-      <div class="algo-item" data-algo="weighted_astar" onclick="selectAlgo(this,'weighted_astar')">
-        <div class="algo-icon">⚖️</div>
-        <div><div class="algo-name">Weighted A*</div><div class="algo-cat">wA* · f=g+w·h</div></div>
-      </div>
-      <div class="algo-item" data-algo="beam" onclick="selectAlgo(this,'beam')">
-        <div class="algo-icon">🔦</div>
-        <div><div class="algo-name">Beam Search</div><div class="algo-cat">Beam width B</div></div>
-      </div>
-    </div>
-
-    <div class="sidebar-section">
-      <div class="sidebar-label">Local Search</div>
-      <div class="algo-item" data-algo="hillclimbing" onclick="selectAlgo(this,'hillclimbing')">
-        <div class="algo-icon">⛰️</div>
-        <div><div class="algo-name">Hill Climbing</div><div class="algo-cat">Simple HC</div></div>
-      </div>
-      <div class="algo-item" data-algo="steepest" onclick="selectAlgo(this,'steepest')">
-        <div class="algo-icon">📈</div>
-        <div><div class="algo-name">Steepest Ascent HC</div><div class="algo-cat">Best neighbor</div></div>
-      </div>
-      <div class="algo-item" data-algo="simulated_annealing" onclick="selectAlgo(this,'simulated_annealing')">
-        <div class="algo-icon">🌡️</div>
-        <div><div class="algo-name">Simulated Annealing</div><div class="algo-cat">SA · Temperature</div></div>
-      </div>
-      <div class="algo-item" data-algo="tabu" onclick="selectAlgo(this,'tabu')">
-        <div class="algo-icon">🚫</div>
-        <div><div class="algo-name">Tabu Search</div><div class="algo-cat">Tabu list</div></div>
-      </div>
-      <div class="algo-item" data-algo="genetic" onclick="selectAlgo(this,'genetic')">
-        <div class="algo-icon">🧬</div>
-        <div><div class="algo-name">Genetic Algorithm</div><div class="algo-cat">GA · Population</div></div>
-      </div>
-    </div>
-
-    <div class="sidebar-section">
-      <div class="sidebar-label">Adversarial</div>
-      <div class="algo-item" data-algo="minimax" onclick="selectAlgo(this,'minimax')">
-        <div class="algo-icon">♟️</div>
-        <div><div class="algo-name">Minimax Search</div><div class="algo-cat">Game tree</div></div>
-      </div>
-      <div class="algo-item" data-algo="alphabeta" onclick="selectAlgo(this,'alphabeta')">
-        <div class="algo-icon">✂️</div>
-        <div><div class="algo-name">Alpha-Beta Pruning</div><div class="algo-cat">α-β · Minimax opt</div></div>
-      </div>
-      <div class="algo-item" data-algo="mcts" onclick="selectAlgo(this,'mcts')">
-        <div class="algo-icon">🎲</div>
-        <div><div class="algo-name">Monte Carlo Tree</div><div class="algo-cat">MCTS · UCB1</div></div>
-      </div>
-    </div>
-
-    <div class="sidebar-section">
-      <div class="sidebar-label">Constraint / Other</div>
-      <div class="algo-item" data-algo="backtracking" onclick="selectAlgo(this,'backtracking')">
-        <div class="algo-icon">🔙</div>
-        <div><div class="algo-name">Backtracking</div><div class="algo-cat">Constraint satisfy</div></div>
-      </div>
-      <div class="algo-item" data-algo="ants" onclick="selectAlgo(this,'ants')">
-        <div class="algo-icon">🐜</div>
-        <div><div class="algo-name">Ant Colony Opt.</div><div class="algo-cat">ACO · Pheromone</div></div>
-      </div>
-      <div class="algo-item" data-algo="jps" onclick="selectAlgo(this,'jps')">
-        <div class="algo-icon">🚀</div>
-        <div><div class="algo-name">Jump Point Search</div><div class="algo-cat">JPS · Grid opt A*</div></div>
-      </div>
-    </div>
-  </div>
-
-  <!-- CONTENT -->
-  <div class="content-area">
-
-    <!-- TOP BAR -->
-    <div class="top-bar">
+  <!-- HEADER -->
+  <header>
+    <div class="header-brand">
+      <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+        <rect x="2" y="2" width="10" height="10" rx="2" fill="currentColor" opacity="0.8" />
+        <rect x="16" y="2" width="10" height="10" rx="2" fill="currentColor" opacity="0.5" />
+        <rect x="2" y="16" width="10" height="10" rx="2" fill="currentColor" opacity="0.5" />
+        <rect x="16" y="16" width="10" height="10" rx="2" fill="currentColor" opacity="0.9" />
+        <line x1="7" y1="12" x2="7" y2="16" stroke="currentColor" stroke-width="1.5" />
+        <line x1="21" y1="12" x2="21" y2="16" stroke="currentColor" stroke-width="1.5" />
+        <line x1="12" y1="7" x2="16" y2="7" stroke="currentColor" stroke-width="1.5" />
+        <line x1="12" y1="21" x2="16" y2="21" stroke="currentColor" stroke-width="1.5" />
+      </svg>
       <div>
-        <div class="top-bar-title" id="algoTitle">Breadth First Search (BFS)</div>
-        <div class="top-bar-desc" id="algoDesc">Menelusuri node per level dari kiri ke kanan menggunakan struktur data Queue (FIFO).</div>
+        <div class="title">Simulasi Searching</div>
+        <div class="subtitle">Visualisasi Algoritma Kecerdasan Buatan</div>
       </div>
-      <div class="stats-row">
-        <div class="stat-box"><div class="stat-val" id="statSteps">0</div><div class="stat-lbl">Langkah</div></div>
-        <div class="stat-box"><div class="stat-val" id="statVisited">0</div><div class="stat-lbl">Dikunjungi</div></div>
-        <div class="stat-box"><div class="stat-val" id="statQueue">0</div><div class="stat-lbl">Antrian</div></div>
-        <div class="stat-box"><div class="stat-val" id="statPath" style="color:var(--node-path)">-</div><div class="stat-lbl">Path</div></div>
+    </div>
+    <div class="header-actions">
+      <button class="btn-header" onclick="openModal('bantuan')">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10" />
+          <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
+          <line x1="12" y1="17" x2="12.01" y2="17" />
+        </svg>
+        Bantuan
+      </button>
+      <button class="btn-header" onclick="resetAll()">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
+          <path d="M3 3v5h5" />
+        </svg>
+        Reset
+      </button>
+    </div>
+  </header>
+
+  <!-- MAIN -->
+  <div class="app-layout">
+
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+      <div class="sidebar-section">
+        <div class="sidebar-label">Uninformed Search</div>
+        <div class="algo-item active" data-algo="bfs" onclick="selectAlgo(this,'bfs')">
+          <div class="algo-icon">🔵</div>
+          <div>
+            <div class="algo-name">Breadth First Search</div>
+            <div class="algo-cat">BFS · Queue FIFO</div>
+          </div>
+        </div>
+        <div class="algo-item" data-algo="dfs" onclick="selectAlgo(this,'dfs')">
+          <div class="algo-icon">🟢</div>
+          <div>
+            <div class="algo-name">Depth First Search</div>
+            <div class="algo-cat">DFS · Stack LIFO</div>
+          </div>
+        </div>
+        <div class="algo-item" data-algo="dls" onclick="selectAlgo(this,'dls')">
+          <div class="algo-icon">📏</div>
+          <div>
+            <div class="algo-name">Depth Limited Search</div>
+            <div class="algo-cat">DLS · Depth ≤ L</div>
+          </div>
+        </div>
+        <div class="algo-item" data-algo="ids" onclick="selectAlgo(this,'ids')">
+          <div class="algo-icon">🔁</div>
+          <div>
+            <div class="algo-name">Iterative Deepening</div>
+            <div class="algo-cat">IDS · IDDFS</div>
+          </div>
+        </div>
+        <div class="algo-item" data-algo="ucs" onclick="selectAlgo(this,'ucs')">
+          <div class="algo-icon">💰</div>
+          <div>
+            <div class="algo-name">Uniform Cost Search</div>
+            <div class="algo-cat">UCS · Dijkstra</div>
+          </div>
+        </div>
+        <div class="algo-item" data-algo="bidirectional" onclick="selectAlgo(this,'bidirectional')">
+          <div class="algo-icon">↔️</div>
+          <div>
+            <div class="algo-name">Bidirectional BFS</div>
+            <div class="algo-cat">Bi-BFS · Two-ended</div>
+          </div>
+        </div>
       </div>
-      <div class="view-toggle">
-        <button class="view-btn active" onclick="setView('2d',this)">2D Grid</button>
-        <button class="view-btn" onclick="setView('3d',this)">3D Grid</button>
-        <button class="view-btn" onclick="setView('graph',this)">Graph</button>
+
+      <div class="sidebar-section">
+        <div class="sidebar-label">Informed / Heuristic</div>
+        <div class="algo-item custom-algo" data-algo="garislintang" onclick="selectAlgo(this,'garislintang')">
+          <div class="algo-icon">🌐</div>
+          <div>
+            <div class="algo-name">Garis Lintang</div>
+            <div class="algo-cat">GL · f=D+k*T</div>
+          </div>
+        </div>
+        <div class="algo-item" data-algo="greedy" onclick="selectAlgo(this,'greedy')">
+          <div class="algo-icon">🎯</div>
+          <div>
+            <div class="algo-name">Greedy Best First</div>
+            <div class="algo-cat">GBFS · h(n)</div>
+          </div>
+        </div>
+        <div class="algo-item" data-algo="astar" onclick="selectAlgo(this,'astar')">
+          <div class="algo-icon">⭐</div>
+          <div>
+            <div class="algo-name">A* Search</div>
+            <div class="algo-cat">f(n) = g(n)+h(n)</div>
+          </div>
+        </div>
+        <div class="algo-item" data-algo="idastar" onclick="selectAlgo(this,'idastar')">
+          <div class="algo-icon">🌟</div>
+          <div>
+            <div class="algo-name">IDA* Search</div>
+            <div class="algo-cat">Iterative A*</div>
+          </div>
+        </div>
+        <div class="algo-item" data-algo="weighted_astar" onclick="selectAlgo(this,'weighted_astar')">
+          <div class="algo-icon">⚖️</div>
+          <div>
+            <div class="algo-name">Weighted A*</div>
+            <div class="algo-cat">wA* · f=g+w·h</div>
+          </div>
+        </div>
+        <div class="algo-item" data-algo="beam" onclick="selectAlgo(this,'beam')">
+          <div class="algo-icon">🔦</div>
+          <div>
+            <div class="algo-name">Beam Search</div>
+            <div class="algo-cat">Beam width B</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="sidebar-section">
+        <div class="sidebar-label">Local Search</div>
+        <div class="algo-item" data-algo="hillclimbing" onclick="selectAlgo(this,'hillclimbing')">
+          <div class="algo-icon">⛰️</div>
+          <div>
+            <div class="algo-name">Hill Climbing</div>
+            <div class="algo-cat">Simple HC</div>
+          </div>
+        </div>
+        <div class="algo-item" data-algo="steepest" onclick="selectAlgo(this,'steepest')">
+          <div class="algo-icon">📈</div>
+          <div>
+            <div class="algo-name">Steepest Ascent HC</div>
+            <div class="algo-cat">Best neighbor</div>
+          </div>
+        </div>
+        <div class="algo-item" data-algo="simulated_annealing" onclick="selectAlgo(this,'simulated_annealing')">
+          <div class="algo-icon">🌡️</div>
+          <div>
+            <div class="algo-name">Simulated Annealing</div>
+            <div class="algo-cat">SA · Temperature</div>
+          </div>
+        </div>
+        <div class="algo-item" data-algo="tabu" onclick="selectAlgo(this,'tabu')">
+          <div class="algo-icon">🚫</div>
+          <div>
+            <div class="algo-name">Tabu Search</div>
+            <div class="algo-cat">Tabu list</div>
+          </div>
+        </div>
+        <div class="algo-item" data-algo="genetic" onclick="selectAlgo(this,'genetic')">
+          <div class="algo-icon">🧬</div>
+          <div>
+            <div class="algo-name">Genetic Algorithm</div>
+            <div class="algo-cat">GA · Population</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="sidebar-section">
+        <div class="sidebar-label">Adversarial</div>
+        <div class="algo-item" data-algo="minimax" onclick="selectAlgo(this,'minimax')">
+          <div class="algo-icon">♟️</div>
+          <div>
+            <div class="algo-name">Minimax Search</div>
+            <div class="algo-cat">Game tree</div>
+          </div>
+        </div>
+        <div class="algo-item" data-algo="alphabeta" onclick="selectAlgo(this,'alphabeta')">
+          <div class="algo-icon">✂️</div>
+          <div>
+            <div class="algo-name">Alpha-Beta Pruning</div>
+            <div class="algo-cat">α-β · Minimax opt</div>
+          </div>
+        </div>
+        <div class="algo-item" data-algo="mcts" onclick="selectAlgo(this,'mcts')">
+          <div class="algo-icon">🎲</div>
+          <div>
+            <div class="algo-name">Monte Carlo Tree</div>
+            <div class="algo-cat">MCTS · UCB1</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="sidebar-section">
+        <div class="sidebar-label">Constraint / Other</div>
+        <div class="algo-item" data-algo="backtracking" onclick="selectAlgo(this,'backtracking')">
+          <div class="algo-icon">🔙</div>
+          <div>
+            <div class="algo-name">Backtracking</div>
+            <div class="algo-cat">Constraint satisfy</div>
+          </div>
+        </div>
+        <div class="algo-item" data-algo="ants" onclick="selectAlgo(this,'ants')">
+          <div class="algo-icon">🐜</div>
+          <div>
+            <div class="algo-name">Ant Colony Opt.</div>
+            <div class="algo-cat">ACO · Pheromone</div>
+          </div>
+        </div>
+        <div class="algo-item" data-algo="jps" onclick="selectAlgo(this,'jps')">
+          <div class="algo-icon">🚀</div>
+          <div>
+            <div class="algo-name">Jump Point Search</div>
+            <div class="algo-cat">JPS · Grid opt A*</div>
+          </div>
+        </div>
       </div>
     </div>
 
-    <!-- MAIN SPLIT -->
-    <div class="main-split">
+    <!-- CONTENT -->
+    <div class="content-area">
 
-      <!-- CANVAS -->
-      <div class="canvas-wrap">
-        <!-- 2D Grid -->
-        <div id="grid2d">
-          <div class="grid-container" id="gridContainer"></div>
+      <!-- TOP BAR -->
+      <div class="top-bar">
+        <div>
+          <div class="top-bar-title" id="algoTitle">Breadth First Search (BFS)</div>
+          <div class="top-bar-desc" id="algoDesc">Menelusuri node per level dari kiri ke kanan menggunakan struktur data
+            Queue (FIFO).</div>
         </div>
-        <!-- 3D -->
-        <div id="grid3d">
-          <canvas id="threeCanvas"></canvas>
-          <div class="controls-3d-hint">
-            <span><span class="hint-key">Klik Kiri</span> Putar</span>
-            <span><span class="hint-key">Klik Kanan</span> Geser</span>
-            <span><span class="hint-key">Scroll</span> Zoom</span>
+        <div class="stats-row">
+          <div class="stat-box">
+            <div class="stat-val" id="statSteps">0</div>
+            <div class="stat-lbl">Langkah</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-val" id="statVisited">0</div>
+            <div class="stat-lbl">Dikunjungi</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-val" id="statQueue">0</div>
+            <div class="stat-lbl">Antrian</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-val" id="statPath" style="color:var(--node-path)">-</div>
+            <div class="stat-lbl">Path</div>
           </div>
         </div>
-        <!-- Graph -->
-        <div id="graphView">
-          <canvas id="graphCanvas"></canvas>
-        </div>
-
-        <!-- Legend -->
-        <div class="legend">
-          <div class="legend-item"><div class="legend-dot" style="background:var(--bg2);border:1px solid #1a2a40"></div>Kosong</div>
-          <div class="legend-item"><div class="legend-dot" style="background:#0f1923"></div>Dinding</div>
-          <div class="legend-item"><div class="legend-dot" style="background:var(--node-start)"></div>Start</div>
-          <div class="legend-item"><div class="legend-dot" style="background:var(--node-goal)"></div>Goal</div>
-          <div class="legend-item"><div class="legend-dot" style="background:rgba(16,185,129,0.4)"></div>Dikunjungi</div>
-          <div class="legend-item"><div class="legend-dot" style="background:var(--node-current)"></div>Sedang</div>
-          <div class="legend-item"><div class="legend-dot" style="background:rgba(245,158,11,0.4)"></div>Antrian</div>
-          <div class="legend-item"><div class="legend-dot" style="background:var(--node-path)"></div>Path</div>
-        </div>
-
-        <!-- Canvas Toolbar -->
-        <div class="canvas-toolbar">
-          <button class="tool-btn active" id="toolWall" onclick="setTool('wall',this)">🧱 Dinding</button>
-          <button class="tool-btn" id="toolStart" onclick="setTool('start',this)">🟢 Start</button>
-          <button class="tool-btn" id="toolGoal" onclick="setTool('goal',this)">🎯 Goal</button>
-          <button class="tool-btn" onclick="generateMaze()">🌀 Maze</button>
-          <button class="tool-btn" onclick="clearGrid()">🗑 Bersih</button>
+        <div class="view-toggle">
+          <button class="view-btn active" onclick="setView('2d',this)">2D Grid</button>
+          <button class="view-btn" onclick="setView('3d',this)">3D Grid</button>
+          <button class="view-btn" onclick="setView('graph',this)">Graph</button>
         </div>
       </div>
 
-      <!-- RIGHT PANEL -->
-      <div class="right-panel">
-        <!-- Controls -->
-        <div class="panel-section">
-          <div class="panel-title">Kontrol Simulasi</div>
-          <div class="ctrl-row">
-            <button class="btn-ctrl btn-start" id="btnStart" onclick="startSimulation()">▶ Mulai</button>
-            <button class="btn-ctrl btn-step" id="btnStep" onclick="stepThroughSimulation()">⏭ Langkah</button>
-          </div>
-          <div class="ctrl-row">
-            <button class="btn-ctrl btn-pause" id="btnPause" onclick="pauseSimulation()">⏸ Jeda</button>
-            <button class="btn-ctrl btn-stop" id="btnStop" onclick="stopSimulation()">⏹ Berhenti</button>
-          </div>
-          <div class="slider-row">
-            <div class="slider-label"><span>Kecepatan</span><span id="speedLabel">Sedang</span></div>
-            <input type="range" min="1" max="5" value="3" id="speedSlider" oninput="updateSpeed(this.value)">
-          </div>
+      <!-- MAIN SPLIT -->
+      <div class="main-split">
 
-          <div class="grid-size-row">
-            <button class="grid-size-btn" onclick="setGridSize(10,10,this)">10×10</button>
-            <button class="grid-size-btn active" onclick="setGridSize(15,20,this)">15×20</button>
-            <button class="grid-size-btn" onclick="setGridSize(20,30,this)">20×30</button>
-            <button class="grid-size-btn" onclick="setGridSize(25,35,this)">25×35</button>
+        <!-- CANVAS -->
+        <div class="canvas-wrap">
+          <!-- 2D Grid -->
+          <div id="grid2d">
+            <div class="grid-container" id="gridContainer"></div>
+          </div>
+          <!-- 3D -->
+          <div id="grid3d">
+            <canvas id="threeCanvas"></canvas>
+            <div class="controls-3d-hint">
+              <span><span class="hint-key">Klik Kiri</span> Putar</span>
+              <span><span class="hint-key">Klik Kanan</span> Geser</span>
+              <span><span class="hint-key">Scroll</span> Zoom</span>
+            </div>
+          </div>
+          <!-- Graph -->
+          <div id="graphView">
+            <canvas id="graphCanvas"></canvas>
           </div>
 
-          <select class="select-styled" id="heuristicSel" onchange="updateHeuristic(this.value)">
-            <option value="manhattan">Heuristik: Manhattan</option>
-            <option value="euclidean">Heuristik: Euclidean</option>
-            <option value="chebyshev">Heuristik: Chebyshev</option>
-            <option value="octile">Heuristik: Octile</option>
-          </select>
+          <!-- Legend -->
+          <div class="legend">
+            <div class="legend-item">
+              <div class="legend-dot" style="background:var(--bg2);border:1px solid #1a2a40"></div>Kosong
+            </div>
+            <div class="legend-item">
+              <div class="legend-dot" style="background:#0f1923"></div>Dinding
+            </div>
+            <div class="legend-item">
+              <div class="legend-dot" style="background:var(--node-start)"></div>Start
+            </div>
+            <div class="legend-item">
+              <div class="legend-dot" style="background:var(--node-goal)"></div>Goal
+            </div>
+            <div class="legend-item">
+              <div class="legend-dot" style="background:rgba(16,185,129,0.4)"></div>Dikunjungi
+            </div>
+            <div class="legend-item">
+              <div class="legend-dot" style="background:var(--node-current)"></div>Sedang
+            </div>
+            <div class="legend-item">
+              <div class="legend-dot" style="background:rgba(245,158,11,0.4)"></div>Antrian
+            </div>
+            <div class="legend-item">
+              <div class="legend-dot" style="background:var(--node-path)"></div>Path
+            </div>
+          </div>
 
-          <select class="select-styled" id="weightSel" style="display:none" onchange="updateWeight(this.value)">
-            <option value="1">Bobot w = 1.0</option>
-            <option value="1.5">Bobot w = 1.5</option>
-            <option value="2">Bobot w = 2.0</option>
-            <option value="3">Bobot w = 3.0</option>
-          </select>
-
-          <select class="select-styled" id="beamWidthSel" style="display:none">
-            <option value="2">Beam Width = 2</option>
-            <option value="3">Beam Width = 3</option>
-            <option value="5">Beam Width = 5</option>
-            <option value="10">Beam Width = 10</option>
-          </select>
-
-          <select class="select-styled" id="depthLimitSel" style="display:none">
-            <option value="5">Depth Limit = 5</option>
-            <option value="8">Depth Limit = 8</option>
-            <option value="10">Depth Limit = 10</option>
-            <option value="15">Depth Limit = 15</option>
-          </select>
+          <!-- Canvas Toolbar -->
+          <div class="canvas-toolbar">
+            <button class="tool-btn active" id="toolWall" onclick="setTool('wall',this)">🧱 Dinding</button>
+            <button class="tool-btn" id="toolStart" onclick="setTool('start',this)">🟢 Start</button>
+            <button class="tool-btn" id="toolGoal" onclick="setTool('goal',this)">🎯 Goal</button>
+            <button class="tool-btn" onclick="generateMaze()">🌀 Maze</button>
+            <button class="tool-btn" onclick="clearGrid()">🗑 Bersih</button>
+          </div>
         </div>
 
-        <!-- Step Info -->
-        <div class="panel-section" style="flex:1;overflow-y:auto;padding-bottom:6px;">
-          <div class="panel-title">Informasi Langkah</div>
-          <div class="info-row"><span class="info-key">Status</span><span class="info-val" id="infoStatus" style="color:var(--text3)">Siap</span></div>
-          <div class="info-row"><span class="info-key">Langkah ke-</span><span class="info-val accent" id="infoStep">0</span></div>
-          <div class="info-row"><span class="info-key">Node saat ini</span><span class="info-val" id="infoCurrent">-</span></div>
-          <div class="info-row"><span class="info-key">g(n) / cost</span><span class="info-val" id="infoGn">-</span></div>
-          <div class="info-row"><span class="info-key">h(n) / heuristik</span><span class="info-val" id="infoHn">-</span></div>
-          <div class="info-row"><span class="info-key">f(n) = g+h</span><span class="info-val" id="infoFn">-</span></div>
+        <!-- RIGHT PANEL -->
+        <div class="right-panel">
+          <!-- Controls -->
+          <div class="panel-section">
+            <div class="panel-title">Kontrol Simulasi</div>
+            <div class="ctrl-row">
+              <button class="btn-ctrl btn-start" id="btnStart" onclick="startSimulation()">▶ Mulai</button>
+              <button class="btn-ctrl btn-step" id="btnStep" onclick="stepThroughSimulation()">⏭ Langkah</button>
+            </div>
+            <div class="ctrl-row">
+              <button class="btn-ctrl btn-pause" id="btnPause" onclick="pauseSimulation()">⏸ Jeda</button>
+              <button class="btn-ctrl btn-stop" id="btnStop" onclick="stopSimulation()">⏹ Berhenti</button>
+            </div>
+            <div class="slider-row">
+              <div class="slider-label"><span>Kecepatan</span><span id="speedLabel">Sedang</span></div>
+              <input type="range" min="1" max="5" value="3" id="speedSlider" oninput="updateSpeed(this.value)">
+            </div>
 
-          <div style="margin-top:10px;font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-bottom:5px;">Antrian / Frontier</div>
-          <div class="queue-display" id="queueDisplay"></div>
+            <div class="grid-size-row">
+              <button class="grid-size-btn" onclick="setGridSize(10,10,this)">10×10</button>
+              <button class="grid-size-btn active" onclick="setGridSize(15,20,this)">15×20</button>
+              <button class="grid-size-btn" onclick="setGridSize(20,30,this)">20×30</button>
+              <button class="grid-size-btn" onclick="setGridSize(25,35,this)">25×35</button>
+            </div>
 
-          <div style="margin-top:10px;font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-bottom:5px;">Jalur Ditemukan</div>
-          <div class="path-display" id="pathDisplay"><span style="color:var(--text3);font-size:10px">Belum ada jalur</span></div>
+            <select class="select-styled" id="heuristicSel" onchange="updateHeuristic(this.value)">
+              <option value="manhattan">Heuristik: Manhattan</option>
+              <option value="euclidean">Heuristik: Euclidean</option>
+              <option value="chebyshev">Heuristik: Chebyshev</option>
+              <option value="octile">Heuristik: Octile</option>
+            </select>
+
+            <select class="select-styled" id="weightSel" style="display:none" onchange="updateWeight(this.value)">
+              <option value="1">Bobot w = 1.0</option>
+              <option value="1.5">Bobot w = 1.5</option>
+              <option value="2">Bobot w = 2.0</option>
+              <option value="3">Bobot w = 3.0</option>
+            </select>
+
+            <select class="select-styled" id="beamWidthSel" style="display:none">
+              <option value="2">Beam Width = 2</option>
+              <option value="3">Beam Width = 3</option>
+              <option value="5">Beam Width = 5</option>
+              <option value="10">Beam Width = 10</option>
+            </select>
+
+            <select class="select-styled" id="depthLimitSel" style="display:none">
+              <option value="5">Depth Limit = 5</option>
+              <option value="8">Depth Limit = 8</option>
+              <option value="10">Depth Limit = 10</option>
+              <option value="15">Depth Limit = 15</option>
+            </select>
+          </div>
+
+          <!-- Step Info -->
+          <div class="panel-section" style="flex:1;overflow-y:auto;padding-bottom:6px;">
+            <div class="panel-title">Informasi Langkah</div>
+            <div class="info-row"><span class="info-key">Status</span><span class="info-val" id="infoStatus"
+                style="color:var(--text3)">Siap</span></div>
+            <div class="info-row"><span class="info-key">Langkah ke-</span><span class="info-val accent"
+                id="infoStep">0</span></div>
+            <div class="info-row"><span class="info-key">Node saat ini</span><span class="info-val"
+                id="infoCurrent">-</span></div>
+            <div class="info-row"><span class="info-key">g(n) / cost</span><span class="info-val" id="infoGn">-</span>
+            </div>
+            <div class="info-row"><span class="info-key">h(n) / heuristik</span><span class="info-val"
+                id="infoHn">-</span></div>
+            <div class="info-row"><span class="info-key">f(n) = g+h</span><span class="info-val" id="infoFn">-</span>
+            </div>
+
+            <div
+              style="margin-top:10px;font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-bottom:5px;">
+              Antrian / Frontier</div>
+            <div class="queue-display" id="queueDisplay"></div>
+
+            <div
+              style="margin-top:10px;font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-bottom:5px;">
+              Jalur Ditemukan</div>
+            <div class="path-display" id="pathDisplay"><span style="color:var(--text3);font-size:10px">Belum ada
+                jalur</span></div>
+          </div>
         </div>
       </div>
-    </div>
 
-    <!-- CONSOLE -->
-    <div class="console-area">
-      <div class="console-header">
-        <div class="console-title">
-          <div class="console-dot"></div>
-          Console Output
+      <!-- CONSOLE -->
+      <div class="console-area">
+        <div class="console-header">
+          <div class="console-title">
+            <div class="console-dot"></div>
+            Console Output
+          </div>
+          <div class="console-actions">
+            <button class="console-btn" onclick="clearConsole()">Clear</button>
+            <button class="console-btn" onclick="exportLog()">Export</button>
+            <button class="console-btn" id="consoleToggle" onclick="toggleConsole()">▼ Tutup</button>
+          </div>
         </div>
-        <div class="console-actions">
-          <button class="console-btn" onclick="clearConsole()">Clear</button>
-          <button class="console-btn" onclick="exportLog()">Export</button>
-          <button class="console-btn" id="consoleToggle" onclick="toggleConsole()">▼ Tutup</button>
+        <div class="console-body" id="consoleBody"></div>
+        <div class="console-input-row">
+          <div class="console-prompt">&gt;&gt;&gt;</div>
+          <input class="console-input" type="text" placeholder="Ketik perintah... (help, run, reset, maze, clear)"
+            onkeydown="handleConsoleInput(event)">
         </div>
-      </div>
-      <div class="console-body" id="consoleBody"></div>
-      <div class="console-input-row">
-        <div class="console-prompt">&gt;&gt;&gt;</div>
-        <input class="console-input" type="text" placeholder="Ketik perintah... (help, run, reset, maze, clear)" onkeydown="handleConsoleInput(event)">
       </div>
     </div>
   </div>
-</div>
 
-<!-- MODAL -->
-<div class="modal-overlay" id="modalOverlay" onclick="closeModal()">
-  <div class="modal" onclick="event.stopPropagation()">
-    <h2 id="modalTitle">Bantuan</h2>
-    <div id="modalContent"></div>
-    <button class="modal-close" onclick="closeModal()">Tutup</button>
+  <!-- MODAL -->
+  <div class="modal-overlay" id="modalOverlay" onclick="closeModal()">
+    <div class="modal" onclick="event.stopPropagation()">
+      <h2 id="modalTitle">Bantuan</h2>
+      <div id="modalContent"></div>
+      <button class="modal-close" onclick="closeModal()">Tutup</button>
+    </div>
   </div>
-</div>
 
-<script src="main.js"></script>
+  <script src="main.js"></script>
 </body>
+
 </html>
