@@ -305,6 +305,8 @@ header {
 .btn-pause:hover { background: #d97706; }
 .btn-stop { background: var(--accent5); color: #fff; }
 .btn-stop:hover { background: #dc2626; }
+.btn-step { background: var(--bg3); border: 1px solid var(--border); color: var(--text2); }
+.btn-step:hover { border-color: var(--accent); color: var(--accent); }
 
 .slider-row { margin-bottom: 10px; }
 .slider-label { display: flex; justify-content: space-between; font-size: 10px; color: var(--text3); margin-bottom: 5px; }

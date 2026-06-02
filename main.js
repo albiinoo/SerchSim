@@ -2,6 +2,7 @@
 let currentAlgo = 'bfs';
 let currentView = '2d';
 let currentTool = 'wall';
+let gridZoom = 1;
 let gridRows = 15, gridCols = 20;
 let grid = [];
 let startPos = null, goalPos = null;
@@ -96,12 +97,20 @@ function paintCell(r, c) {
     grid[r][c] = current === 'wall' ? 'unvisited' : 'wall';
   } else if (currentTool === 'start') {
     if (current === 'goal') return;
-    if (startPos) grid[startPos.r][startPos.c] = 'unvisited';
+    if (startPos) {
+      const oldStart = startPos;
+      grid[oldStart.r][oldStart.c] = 'unvisited';
+      updateCellUI(oldStart.r, oldStart.c);
+    }
     startPos = {r, c};
     grid[r][c] = 'start';
   } else if (currentTool === 'goal') {
     if (current === 'start') return;
-    if (goalPos) grid[goalPos.r][goalPos.c] = 'unvisited';
+    if (goalPos) {
+      const oldGoal = goalPos;
+      grid[oldGoal.r][oldGoal.c] = 'unvisited';
+      updateCellUI(oldGoal.r, oldGoal.c);
+    }
     goalPos = {r, c};
     grid[r][c] = 'goal';
   }
@@ -1122,6 +1131,35 @@ function pauseSimulation() {
   }
 }
 
+function stepThroughSimulation() {
+  if (!startPos || !goalPos) { consoleLog('error', 'Start/Goal belum ditentukan!'); return; }
+  
+  if (!isRunning) {
+    for (let r = 0; r < gridRows; r++)
+      for (let c = 0; c < gridCols; c++)
+        if (['visited','current','queued','path'].includes(grid[r][c])) { grid[r][c] = 'unvisited'; updateCellUI(r,c); }
+
+    isRunning = true;
+    isPaused = true;
+    stepCount = 0; visitedCount = 0;
+    resetStats();
+
+    document.getElementById('infoStatus').textContent = 'Dijeda (Langkah)';
+    document.getElementById('infoStatus').style.color = 'var(--accent3)';
+
+    consoleLog('system', `=== Memulai ${ALGO_INFO[currentAlgo].title} (Langkah-per-Langkah) ===`);
+    initAlgorithm();
+  } else {
+    isPaused = true;
+    clearTimeout(simulationTimer);
+    document.getElementById('btnPause').textContent = '▶ Lanjut';
+    document.getElementById('infoStatus').textContent = 'Dijeda (Langkah)';
+    document.getElementById('infoStatus').style.color = 'var(--accent3)';
+  }
+  
+  stepAlgorithm();
+}
+
 function stopSimulation() {
   isRunning = false; isPaused = false;
   clearTimeout(simulationTimer);
@@ -1279,6 +1317,21 @@ window.addEventListener('load', () => {
   consoleLog('info', 'Algoritma tersedia: 24 algoritma searching AI');
   consoleLog('info', 'Tampilan: 2D Grid | 3D Isometric | Graph');
   consoleLog('system', 'Ketik "help" untuk daftar perintah console');
+
+  // Zoom-in / Zoom-out untuk 2D grid
+  const grid2DDiv = document.getElementById('grid2d');
+  if (grid2DDiv) {
+    grid2DDiv.addEventListener('wheel', (e) => {
+      if (currentView !== '2d') return;
+      e.preventDefault();
+      gridZoom *= (1 - e.deltaY * 0.001);
+      gridZoom = Math.max(0.4, Math.min(3, gridZoom));
+      const container = document.getElementById('gridContainer');
+      if (container) {
+        container.style.transform = `scale(${gridZoom})`;
+      }
+    }, { passive: false });
+  }
 
   // Handle window resize for 3D
   window.addEventListener('resize', () => { if (currentView === '3d') init3D(); if (currentView === 'graph') initGraphView(); });
