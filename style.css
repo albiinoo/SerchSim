@@ -33,6 +33,9 @@
   --cell-visited-border:rgba(52,211,153,0.45);
   --cell-queued-bg:     rgba(251,191,36,0.28);
   --cell-queued-border: rgba(251,191,36,0.55);
+
+  --overlay-bg: rgba(6, 10, 18, 0.88);
+  --overlay-toolbar-bg: rgba(11, 18, 32, 0.94);
 }
 
 /* ── LIGHT THEME ── */
@@ -68,6 +71,9 @@ body.theme-light {
   --cell-visited-border:rgba(5,150,105,0.42);
   --cell-queued-bg:     rgba(217,119,6,0.18);
   --cell-queued-border: rgba(217,119,6,0.45);
+
+  --overlay-bg: rgba(241, 245, 251, 0.88);
+  --overlay-toolbar-bg: rgba(228, 234, 244, 0.94);
 }
 
 /* ── WARM / SEPIA THEME ── */
@@ -103,6 +109,9 @@ body.theme-warm {
   --cell-visited-border:rgba(52,211,153,0.5);
   --cell-queued-bg:     rgba(251,191,36,0.25);
   --cell-queued-border: rgba(251,191,36,0.55);
+
+  --overlay-bg: rgba(26, 17, 8, 0.88);
+  --overlay-toolbar-bg: rgba(34, 22, 10, 0.94);
 }
 
 * { margin:0; padding:0; box-sizing:border-box; }
@@ -322,7 +331,7 @@ header {
 #threeCanvas.dragging { cursor:grabbing; }
 .controls-3d-hint {
   position:absolute; bottom:50px; left:50%; transform:translateX(-50%);
-  background:rgba(6,10,18,0.88); border:1px solid var(--border); border-radius:8px;
+  background:var(--overlay-bg); border:1px solid var(--border); border-radius:8px;
   padding:6px 14px; font-size:10px; color:var(--text3);
   display:flex; gap:14px; backdrop-filter:blur(8px); pointer-events:none; white-space:nowrap;
 }
@@ -335,7 +344,7 @@ header {
 .legend {
   position:absolute; bottom:8px; left:8px;
   display:flex; gap:8px; flex-wrap:wrap;
-  background:rgba(6,10,18,0.88); border:1px solid var(--border);
+  background:var(--overlay-bg); border:1px solid var(--border);
   border-radius:8px; padding:6px 10px;
   backdrop-filter:blur(8px);
 }
@@ -346,7 +355,7 @@ header {
 .canvas-toolbar {
   position:absolute; top:8px; left:50%; transform:translateX(-50%);
   display:flex; gap:5px;
-  background:rgba(11,18,32,0.94); border:1px solid var(--border);
+  background:var(--overlay-toolbar-bg); border:1px solid var(--border);
   border-radius:8px; padding:5px 8px; backdrop-filter:blur(10px);
   z-index:5;
 }
@@ -400,7 +409,7 @@ button:disabled, select:disabled {
   height:160px; flex-shrink:0;
   border-top:1px solid var(--border);
   display:flex; flex-direction:column;
-  background:#040710;
+  background:var(--bg3);
 }
 .console-header {
   display:flex; align-items:center; justify-content:space-between;
@@ -482,6 +491,10 @@ button:disabled, select:disabled {
 /* Step — subtle */
 .btn-step  { background:var(--bg3); border:1px solid var(--border); color:var(--text2); }
 .btn-step:hover:not(:disabled)  { border-color:var(--accent); color:var(--accent); }
+
+/* Reset - adaptive */
+.btn-reset { background:var(--bg3); border:1px solid var(--border); color:var(--text2); }
+.btn-reset:hover:not(:disabled) { background:var(--bg2); color:var(--text); border-color:var(--text3); }
 
 /* Turbo Mode button */
 .btn-turbo {

@@ -86,6 +86,7 @@ function renderGrid() {
       container.appendChild(cell);
     }
   }
+  if (currentView === 'graph') initGraphView();
 }
 
 document.addEventListener('mouseup', () => { isMouseDown = false; });
@@ -116,6 +117,7 @@ function paintCell(r, c) {
     grid[r][c] = 'goal';
   }
   updateCellUI(r, c);
+  if (currentView === 'graph') initGraphView();
 
   // Notifikasi worker agar grid-nya sinkron
   if (algoWorker) algoWorker.postMessage({ type: 'gridUpdate', cells: [{ r, c, state: grid[r][c] }], startPos, goalPos });
@@ -290,36 +292,56 @@ function render3D(ctx, W, H) {
 
   renderList.forEach(cell => {
     const { r, c, state, hLevel } = cell;
-    const col = get3DColorThemed(state);
+    const col = get3DColor(state);
+    const isLight = document.body.classList.contains('theme-light');
+    const strokeCol = isLight ? 'rgba(0,0,0,0.15)' : 'rgba(255,255,255,0.15)';
 
     const v = [];
     for (let dz of [0, hLevel]) {
-      for (let dy of [-0.5, 0.5]) {
-        for (let dx of [-0.5, 0.5]) {
+      for (let dy of [-0.45, 0.45]) {
+        for (let dx of [-0.45, 0.45]) {
           v.push(project(c + dx, r + dy, dz));
         }
       }
     }
 
-    ctx.beginPath();
-    ctx.moveTo(v[4].x, v[4].y); ctx.lineTo(v[5].x, v[5].y);
-    ctx.lineTo(v[7].x, v[7].y); ctx.lineTo(v[6].x, v[6].y);
-    ctx.closePath();
-    ctx.fillStyle = col; ctx.fill();
-    ctx.strokeStyle = 'rgba(0,0,0,0.3)'; ctx.lineWidth = 0.5; ctx.stroke();
-
     if (hLevel > 0.1) {
-      ctx.beginPath();
-      ctx.moveTo(v[4].x, v[4].y); ctx.lineTo(v[6].x, v[6].y);
-      ctx.lineTo(v[2].x, v[2].y); ctx.lineTo(v[0].x, v[0].y);
-      ctx.closePath();
-      ctx.fillStyle = shadeColor(col, -40); ctx.fill(); ctx.stroke();
+      const faces = [
+        { p: [v[4], v[5], v[1], v[0]], shade: isLight ? -20 : -35 }, // Back
+        { p: [v[5], v[7], v[3], v[1]], shade: isLight ? -10 : -25 }, // Right
+        { p: [v[7], v[6], v[2], v[3]], shade: isLight ? -5  : -15 }, // Front
+        { p: [v[6], v[4], v[0], v[2]], shade: isLight ? -15 : -30 }, // Left
+        { p: [v[4], v[5], v[7], v[6]], shade: 0 }                    // Top
+      ];
 
+      // Sort faces by average depth (Painter's Algorithm for the single block)
+      faces.forEach(f => {
+        f.depth = (f.p[0].depth + f.p[1].depth + f.p[2].depth + f.p[3].depth) / 4;
+      });
+      faces.sort((a, b) => b.depth - a.depth);
+
+      // Draw faces back-to-front
+      faces.forEach(f => {
+        ctx.beginPath();
+        ctx.moveTo(f.p[0].x, f.p[0].y);
+        ctx.lineTo(f.p[1].x, f.p[1].y);
+        ctx.lineTo(f.p[2].x, f.p[2].y);
+        ctx.lineTo(f.p[3].x, f.p[3].y);
+        ctx.closePath();
+        ctx.fillStyle = f.shade === 0 ? col : shadeColor(col, f.shade);
+        ctx.fill();
+        ctx.strokeStyle = strokeCol;
+        ctx.lineWidth = 0.8;
+        ctx.stroke();
+      });
+    } else {
+      // For flat cells, just draw the top face
       ctx.beginPath();
-      ctx.moveTo(v[6].x, v[6].y); ctx.lineTo(v[7].x, v[7].y);
-      ctx.lineTo(v[3].x, v[3].y); ctx.lineTo(v[2].x, v[2].y);
+      ctx.moveTo(v[4].x, v[4].y); ctx.lineTo(v[5].x, v[5].y);
+      ctx.lineTo(v[7].x, v[7].y); ctx.lineTo(v[6].x, v[6].y);
       ctx.closePath();
-      ctx.fillStyle = shadeColor(col, -25); ctx.fill(); ctx.stroke();
+      ctx.fillStyle = col; ctx.fill();
+      ctx.strokeStyle = strokeCol; ctx.lineWidth = 0.8; ctx.stroke();
     }
 
     if (state === 'start' || state === 'goal') {
@@ -336,12 +358,32 @@ function render3D(ctx, W, H) {
 
 
 function get3DColor(state) {
-  const colors = {
-    unvisited: '#1e3a5f', wall: '#0a1018', start: '#22c55e',
-    goal: '#7c3aed', visited: '#0d4a32', current: '#00d4ff',
-    queued: '#7a4f00', path: '#7a3000'
-  };
-  return colors[state] || '#1e3a5f';
+  const isLight = document.body.classList.contains('theme-light');
+  const isWarm = document.body.classList.contains('theme-warm');
+
+  if (isLight) {
+    const colors = {
+      unvisited: '#dde6f0', wall: '#4338ca', start: '#16a34a',
+      goal: '#7c3aed', visited: '#6ee7b7', current: '#0284c7',
+      queued: '#fde68a', path: '#ea580c'
+    };
+    return colors[state] || '#dde6f0';
+  } else if (isWarm) {
+    const colors = {
+      unvisited: '#22160a', wall: '#7c2d12', start: '#4ade80',
+      goal: '#fb923c', visited: '#10b981', current: '#fde68a',
+      queued: '#fbbf24', path: '#86efac'
+    };
+    return colors[state] || '#22160a';
+  } else {
+    // Dark (default)
+    const colors = {
+      unvisited: '#0b1220', wall: '#3730a3', start: '#22d47c',
+      goal: '#c084fc', visited: '#065f46', current: '#38bdf8',
+      queued: '#92400e', path: '#fb923c'
+    };
+    return colors[state] || '#0b1220';
+  }
 }
 
 function shadeColor(color, percent) {
@@ -393,10 +435,12 @@ function initGraphView() {
 function drawGraph() {
   if (!graphCtx) return;
   const W = graphCanvas.width, H = graphCanvas.height;
+  const style = getComputedStyle(document.body);
+  const isLight = document.body.classList.contains('theme-light');
   graphCtx.clearRect(0, 0, W, H);
 
   // Background
-  graphCtx.fillStyle = '#070b14';
+  graphCtx.fillStyle = style.getPropertyValue('--bg').trim();
   graphCtx.fillRect(0, 0, W, H);
 
   // Draw edges
@@ -405,12 +449,12 @@ function drawGraph() {
     graphCtx.beginPath();
     graphCtx.moveTo(a.x, a.y);
     graphCtx.lineTo(b.x, b.y);
-    graphCtx.strokeStyle = '#1e2d42';
+    graphCtx.strokeStyle = style.getPropertyValue('--border').trim();
     graphCtx.lineWidth = 1.5;
     graphCtx.stroke();
     // Weight label
     const mx = (a.x + b.x) / 2, my = (a.y + b.y) / 2;
-    graphCtx.fillStyle = '#475569';
+    graphCtx.fillStyle = style.getPropertyValue('--text3').trim();
     graphCtx.font = '9px JetBrains Mono';
     graphCtx.textAlign = 'center';
     graphCtx.fillText(e.w, mx, my - 3);
@@ -418,26 +462,22 @@ function drawGraph() {
 
   // Draw nodes
   graphNodes.forEach(n => {
-    const colors = {
-      unvisited: '#1e3a5f', wall: '#1e293b', start: '#22c55e', goal: '#7c3aed',
-      visited: '#10b981', current: '#00d4ff', queued: '#f59e0b', path: '#f97316'
-    };
     graphCtx.beginPath();
     graphCtx.arc(n.x, n.y, 14, 0, Math.PI * 2);
-    graphCtx.fillStyle = colors[n.state] || colors.unvisited;
+    graphCtx.fillStyle = get3DColor(n.state);
     graphCtx.fill();
     // Glow for special nodes
     if (n.state === 'current' || n.state === 'start' || n.state === 'goal') {
       graphCtx.shadowBlur = 12;
-      graphCtx.shadowColor = colors[n.state];
+      graphCtx.shadowColor = get3DColor(n.state);
       graphCtx.fill();
       graphCtx.shadowBlur = 0;
     }
-    graphCtx.strokeStyle = 'rgba(255,255,255,0.15)';
+    graphCtx.strokeStyle = isLight ? 'rgba(0,0,0,0.15)' : 'rgba(255,255,255,0.15)';
     graphCtx.lineWidth = 1;
     graphCtx.stroke();
     // Label
-    graphCtx.fillStyle = '#fff';
+    graphCtx.fillStyle = isLight ? '#000' : '#fff';
     graphCtx.font = 'bold 10px JetBrains Mono';
     graphCtx.textAlign = 'center';
     graphCtx.textBaseline = 'middle';
@@ -485,7 +525,6 @@ function getOrCreateWorker() {
     consoleLog('error', `Worker error: ${e.message}`);
     isRunning = false; isPaused = false;
     updateUIControls();
-    _scheduleAutoReset();
   };
   return algoWorker;
 }
@@ -515,6 +554,10 @@ function handleWorkerMessage(e) {
         grid[r][c] = state;
         updateCellUI(r, c);
       });
+      if (currentView === 'graph') {
+        graphNodes.forEach(n => { n.state = grid[n.r][n.c]; });
+        drawGraph();
+      }
     }
 
     // 2. Stats
@@ -578,9 +621,6 @@ function handleWorkerMessage(e) {
         consoleLog('warn', `⚠ Simulasi selesai — tidak ada jalur (${done.steps} langkah, ${done.visited} dikunjungi)`);
       }
       updateUIControls();
-      if (currentView === 'graph') initGraphView();
-      // Auto-reset worker state so next run starts clean
-      _scheduleAutoReset();
     }
   });
 }
@@ -607,35 +647,37 @@ function sendGridToWorker() {
   });
 }
 
-// Auto-reset: after simulation ends (success/fail/stuck), reset worker + UI
-// so user can immediately switch algo and run again without manual reset.
-function _scheduleAutoReset() {
-  // Short delay so user can read the result, then silently clean up worker state
-  setTimeout(() => {
-    // Only reset if still not running (user hasn't clicked Start again)
-    if (!isRunning && !isPaused) {
-      // Clear visual trail from grid but keep walls + start + goal
-      for (let r = 0; r < gridRows; r++)
-        for (let c = 0; c < gridCols; c++)
-          if (['visited', 'current', 'queued', 'path'].includes(grid[r][c])) {
-            grid[r][c] = 'unvisited';
-            updateCellUI(r, c);
-          }
-      // Terminate + respawn worker so it's fully fresh for next algo
-      if (algoWorker) {
-        algoWorker.onmessage = null;
-        algoWorker.onerror   = null;
-        algoWorker.terminate();
-        algoWorker = null;
+function resetGridState() {
+  if (isRunning) return; // Jangan reset jika sedang berjalan
+  
+  // Bersihkan jejak visual dari grid tapi biarkan dinding, start, goal
+  for (let r = 0; r < gridRows; r++) {
+    for (let c = 0; c < gridCols; c++) {
+      if (['visited', 'current', 'queued', 'path'].includes(grid[r][c])) {
+        grid[r][c] = 'unvisited';
+        updateCellUI(r, c);
       }
-      resetStats();
-      document.getElementById('infoStatus').textContent = 'Siap';
-      document.getElementById('infoStatus').style.color = 'var(--text3)';
-      consoleLog('system', '— Grid direset, siap untuk simulasi berikutnya —');
     }
-  }, 2200); // 2.2s delay: cukup untuk baca hasil, tapi tidak terlalu lama
-}
+  }
+  
+  if (currentView === 'graph') {
+    graphNodes.forEach(n => { n.state = grid[n.r][n.c]; });
+    drawGraph();
+  }
 
+  // Matikan dan buat ulang worker agar statusnya bersih
+  if (algoWorker) {
+    algoWorker.onmessage = null;
+    algoWorker.onerror   = null;
+    algoWorker.terminate();
+    algoWorker = null;
+  }
+  
+  resetStats();
+  document.getElementById('infoStatus').textContent = 'Siap';
+  document.getElementById('infoStatus').style.color = 'var(--text3)';
+  consoleLog('system', '- Grid direset, siap untuk simulasi berikutnya -');
+}
 
 // ===================== SIMULATION ENGINE =====================
 function startSimulation() {
@@ -656,12 +698,8 @@ function startSimulation() {
     return;
   }
 
-  // Reset sel yang divisualisasikan
-  for (let r = 0; r < gridRows; r++)
-    for (let c = 0; c < gridCols; c++)
-      if (['visited', 'current', 'queued', 'path'].includes(grid[r][c])) {
-        grid[r][c] = 'unvisited'; updateCellUI(r, c);
-      }
+  // Otomatis reset visualisasi jika masih ada sisa dari simulasi sebelumnya
+  resetGridState();
 
   isRunning = true; isPaused = false;
   stepCount = 0; visitedCount = 0;
@@ -1885,23 +1923,13 @@ function stepThroughSimulation() {
 function stopSimulation() {
   isRunning = false; isPaused = false;
   clearTimeout(simulationTimer);
-  if (algoWorker) {
-    algoWorker.onmessage = null;
-    algoWorker.onerror   = null;
-    algoWorker.terminate();
-    algoWorker = null;
-  }
-  document.getElementById('btnPause').textContent = '\u23f8 Jeda';
+  resetGridState();
+  
+  document.getElementById('btnPause').textContent = '⏸ Jeda';
   document.getElementById('infoStatus').textContent = 'Berhenti';
   document.getElementById('infoStatus').style.color = 'var(--accent5)';
   if (stepCount > 0) consoleLog('warn', 'Simulasi dihentikan di langkah ' + stepCount);
-  // Clear grid visualization
-  for (let r = 0; r < gridRows; r++)
-    for (let c = 0; c < gridCols; c++)
-      if (['visited', 'current', 'queued', 'path'].includes(grid[r][c])) {
-        grid[r][c] = 'unvisited'; updateCellUI(r, c);
-      }
-  resetStats();
+  
   updateUIControls();
 }
 
@@ -2153,6 +2181,7 @@ function setTheme(theme, btn) {
   if (btn) btn.classList.add('active');
   // Update 3D colors if active
   if (currentView === '3d') init3D();
+  if (currentView === 'graph') drawGraph();
   consoleLog('system', `Tema diubah: ${theme === 'dark' ? 'Gelap' : theme === 'light' ? 'Terang' : 'Hangat'}`);
 }
 

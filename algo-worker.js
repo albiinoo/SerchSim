@@ -674,7 +674,7 @@ function* gen_BiDir(s, g) {
 }
 
 function* gen_Greedy(s, g) {
-  const visited = new Set([key(s.r, s.c)]);
+  const visited = new Set();
   const parent  = {};
   const pq      = [{ r: s.r, c: s.c, h: heuristic(s.r, s.c, g.r, g.c) }];
 
